@@ -33,7 +33,11 @@ services:
       - "3306:3306"
     networks:
       - inception
+    volumes:
+      - db-volume:/var/lib/mysql
     restart: always
+    env_file:
+      - .env
 
   wordpress:
     build:
@@ -63,7 +67,7 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: /home/rommey/data/mariadb
+      device: /home/rmonney/data/mariadb
 
 networks:
    inception:

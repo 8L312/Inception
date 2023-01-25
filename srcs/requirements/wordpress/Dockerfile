@@ -27,6 +27,7 @@ RUN apk update && apk upgrade && apk add --no-cache \
       /etc/php8/php-fpm.d/www.conf && \
     rm -f /var/cache/apk/*
 WORKDIR /var/www
+EXPOSE 9000
 RUN wget https://wordpress.org/latest.zip && \
     unzip latest.zip && \
     cp -rf wordpress/* . && \
