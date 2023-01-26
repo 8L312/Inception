@@ -5,6 +5,11 @@ all:
 	@bash srcs/requirements/wordpress/tools/make_dir.sh
 	@docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env up -d
 
+up:	
+	@printf "Lancement du docker ${NAME}\n"
+	@bash srcs/requirements/wordpress/tools/make_dir.sh
+	@docker-compose -f ./srcs/docker-compose.yml --env-file srcs/.env up -d
+
 build:
 	@printf "Lancement du docker ${NAME}\n"
 	@bash srcs/requirements/wordpress/tools/make_dir.sh
@@ -21,7 +26,6 @@ re:	down
 clean: down
 	@printf "Cleaning configuration ${NAME}...\n"
 	@docker system prune -a
-	@sudo rm -rf ~/data/
 
 fclean:
 	@printf "Total clean of all configurations docker\n"
@@ -29,6 +33,5 @@ fclean:
 	@docker system prune --all --force --volumes
 	@docker network prune --force
 	@docker volume prune --force
-	@sudo rm -rf ~/data/
 
 .PHONY	: all build down re clean fclean

@@ -3,10 +3,9 @@ version: '3'
 services:
 
   nginx:
-    build:
-      context: .
-      dockerfile: requirements/nginx/Dockerfile
     container_name: nginx
+    build: ./requirements/nginx
+    env_file: .env
     depends_on :
       - wordpress
     ports:
@@ -14,45 +13,32 @@ services:
     networks:
       - inception
     volumes:
-      - ./requirements/nginx/conf/:/etc/nginx/http.d/
-      - ./requirements/nginx/tools:/etc/nginx/ssl/
-      - wp-volume:/var/www/
-    restart: always
+      - wp-volume:/var/www/wordpress
+    restart: on-failure
 
   mariadb:
-    build:
-      context: .
-      dockerfile: requirements/mariadb/Dockerfile
-      args:
-        DB_NAME: ${DB_NAME}
-        DB_USER: ${DB_USER}
-        DB_PASS: ${DB_PASS}
-        DB_ROOT: ${DB_ROOT}
     container_name: mariadb
-    ports:
-      - "3306:3306"
+    build:  ./requirements/mariadb
+    env_file: .env
     networks:
       - inception
     volumes:
       - db-volume:/var/lib/mysql
-    restart: always
+    restart: unless-stopped
 
   wordpress:
-    build:
-      context: .
-      dockerfile: requirements/wordpress/Dockerfile
-      args:
-        DB_NAME: ${DB_NAME}
-        DB_USER: ${DB_USER}
-        DB_PASS: ${DB_PASS}
     container_name: wordpress
+    build: ./requirements/wordpress
+    env_file: .env
     depends_on:
       - mariadb
     networks:
       - inception
     volumes:
-      - wp-volume:/var/www/
-    restart: always
+      - wp-volume:/var/www/wordpress
+    restart: on-failure
+    expose:
+      - "9000"
 
 volumes:
   wp-volume:

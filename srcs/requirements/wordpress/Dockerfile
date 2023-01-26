@@ -1,37 +1,20 @@
 FROM alpine:3.16
-ARG PHP_VERSION=8 \
-    DB_NAME \
-    DB_USER \
-    DB_PASS
-RUN apk update && apk upgrade && apk add --no-cache \
-    php${PHP_VERSION} \
-    php${PHP_VERSION}-fpm \
-    php${PHP_VERSION}-mysqli \
-    php${PHP_VERSION}-json \
-    php${PHP_VERSION}-curl \
-    php${PHP_VERSION}-dom \
-    php${PHP_VERSION}-exif \
-    php${PHP_VERSION}-fileinfo \
-    php${PHP_VERSION}-mbstring \
-    php${PHP_VERSION}-openssl \
-    php${PHP_VERSION}-xml \
-    php${PHP_VERSION}-zip \
-    php${PHP_VERSION}-redis \
-    wget \
-    unzip && \
-    sed -i "s|listen = 127.0.0.1:9000|listen = 9000|g" \
-      /etc/php8/php-fpm.d/www.conf && \
-    sed -i "s|;listen.owner = nobody|listen.owner = nobody|g" \
-      /etc/php8/php-fpm.d/www.conf && \
-    sed -i "s|;listen.group = nobody|listen.group = nobody|g" \
-      /etc/php8/php-fpm.d/www.conf && \
-    rm -f /var/cache/apk/*
-WORKDIR /var/www
-RUN wget https://wordpress.org/latest.zip && \
-    unzip latest.zip && \
-    cp -rf wordpress/* . && \
-    rm -rf wordpress latest.zip
-COPY ./requirements/wordpress/conf/wp-config-create.sh .
-RUN sh wp-config-create.sh && rm wp-config-create.sh && \
-    chmod -R 0777 wp-content/
-CMD ["/usr/sbin/php-fpm8", "-F"]
+
+RUN		apk update && apk upgrade && \
+		apk add php8 php8-fpm php8-opcache php8-gd php8-curl php8-mysqli php8-json mariadb-client php-phar php8-mbstring
+
+RUN		mkdir /var/www && \
+		wget https://fr.wordpress.org/wordpress-6.0-fr_FR.tar.gz -P /var/www && \
+		cd /var/www && \
+		tar -xzf wordpress-6.0-fr_FR.tar.gz && \
+		rm wordpress-6.0-fr_FR.tar.gz && \
+		chown -R root:root /var/www/wordpress
+
+COPY	conf/wp_config_CLI.sh /wp_config_CLI.sh
+
+COPY	conf/www.conf /etc/php8/php-fpm.d
+
+RUN		wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+		chmod +x wp-cli.phar && mv wp-cli.phar /usr/local/bin/wp
+
+CMD	["sh", "wp_config_CLI.sh"]
