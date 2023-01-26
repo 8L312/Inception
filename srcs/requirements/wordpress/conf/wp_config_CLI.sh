@@ -2,6 +2,9 @@
 sleep 5
 if [ ! -f /var/www/wordpress/wp-config.php ] ; then
 {
+	wp core download --allow-root
+	cd /var/www/wordpress || exit
+
 	wp config create	--allow-root \
 						--dbname=$DB_NAME \
 						--dbuser=$DB_USER \
@@ -26,6 +29,7 @@ if [ ! -f /var/www/wordpress/wp-config.php ] ; then
 
 	if [ ! -d /run/php ] ; then
 		mkdir /run/php
+		touch /run/php/php7.3-fpm.pid;
 	fi
 }
 fi
